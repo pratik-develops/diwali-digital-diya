@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Diwali Digital Diya
 
-## Getting Started
+A festive, responsive Diwali greeting experience built with Next.js, React, TypeScript, Tailwind CSS, and Framer Motion.
 
-First, run the development server:
+## Getting started
+
+Install dependencies and run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Run `npm run lint` and `npm run build` to validate the app and create a production build.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Personalized greeting cards, shareable greeting and secret-letter links, and QR greetings.
+- Interactive diya garden, click-to-burst fireworks, rangoli creator, floating wishes, and card studio.
+- Playable Demon Slayer: Festival of Light arcade game at `/game`, with touch controls, power-ups, shareable scorecards, and a local leaderboard.
+- Illustrated Diwali storybook at `/journey`; greeting and letter links open at `/greet` and `/letter`.
+- English, Hindi, and Bengali interface options, with reduced-motion support.
 
-## Learn More
+## Sharing and saved data
 
-To learn more about Next.js, take a look at the following resources:
+Greeting, QR, and letter links contain their message details in the URL, so they can be opened on another device. QR codes use the current site origin; deploy the site to a public URL before sharing them outside your local network.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Floating wishes are saved only in the visitor's browser with `localStorage`. They are not shared with other visitors; a public wishes wall would require a backend.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Game scores and the leaderboard are also stored in the visitor's browser only. Challenge links carry the shared score in the URL, but a genuinely shared, multi-device leaderboard would require a backend such as Supabase with server-side score validation.
