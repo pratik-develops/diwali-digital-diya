@@ -182,6 +182,267 @@ label {
   animation: lantern 8s ease-in-out infinite;
 }
 
+.camera-frame {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.camera-frame::before,
+.camera-frame::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.camera-frame::before {
+  inset: 9px;
+  border: 2px solid rgba(255, 227, 167, 0.78);
+  border-radius: 1.15rem;
+  box-shadow: inset 0 0 30px rgba(255, 193, 91, 0.18);
+}
+
+.camera-frame-golden-glow {
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 42%, rgba(245, 210, 143, 0.15)),
+    linear-gradient(135deg, rgba(255, 227, 166, 0.16), transparent 40%, rgba(232, 150, 54, 0.14));
+}
+
+.camera-frame-diya-dreams {
+  background: linear-gradient(180deg, rgba(255, 173, 69, 0.12), transparent 42%, rgba(255, 137, 47, 0.18));
+}
+
+.camera-frame-royal-diwali {
+  background: linear-gradient(135deg, rgba(107, 18, 54, 0.18), transparent 48%, rgba(224, 181, 91, 0.15));
+}
+
+.camera-frame-royal-diwali::before {
+  inset: 14px;
+  border: 3px double #e6c982;
+  box-shadow: inset 0 0 22px rgba(100, 8, 41, 0.22);
+}
+
+.camera-frame-marigold-magic {
+  background: linear-gradient(180deg, rgba(238, 158, 47, 0.17), transparent 32%, transparent 65%, rgba(238, 158, 47, 0.17));
+}
+
+.camera-frame-marigold-magic::after {
+  inset: 0 8px;
+  background:
+    radial-gradient(circle, #f8b334 0 4px, #e47727 5px 8px, transparent 9px) 0 2px / 34px 26px repeat-x,
+    radial-gradient(circle, #f8b334 0 4px, #e47727 5px 8px, transparent 9px) 17px calc(100% - 2px) / 34px 26px repeat-x;
+  opacity: 0.94;
+}
+
+.camera-frame-fireworks-night {
+  background: linear-gradient(145deg, rgba(38, 22, 86, 0.13), transparent 50%, rgba(91, 45, 154, 0.17));
+}
+
+.camera-frame-fireworks-night::after {
+  inset: 0;
+  background:
+    radial-gradient(circle, #ffe083 0 2px, transparent 3px) 14% 20% / 24px 24px no-repeat,
+    radial-gradient(circle, #e0a0ff 0 2px, transparent 3px) 83% 27% / 24px 24px no-repeat,
+    radial-gradient(circle, #8ee8ff 0 2px, transparent 3px) 69% 78% / 20px 20px no-repeat;
+  box-shadow: inset 0 0 40px rgba(83, 53, 166, 0.25);
+}
+
+.camera-frame-rangoli-frame::before {
+  inset: 13px;
+  border: 3px solid transparent;
+  border-radius: 1.05rem;
+  background:
+    linear-gradient(135deg, rgba(255, 107, 93, 0.92), rgba(255, 209, 98, 0.92), rgba(69, 203, 181, 0.92), rgba(167, 128, 242, 0.92)) border-box;
+  mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.camera-frame-rangoli-frame::after {
+  inset: 0;
+  background:
+    radial-gradient(circle at 22px 22px, rgba(255, 119, 92, 0.95) 0 4px, rgba(255, 208, 98, 0.9) 5px 8px, transparent 9px),
+    radial-gradient(circle at calc(100% - 22px) 22px, rgba(67, 200, 176, 0.95) 0 4px, rgba(167, 128, 242, 0.9) 5px 8px, transparent 9px),
+    radial-gradient(circle at 22px calc(100% - 22px), rgba(67, 200, 176, 0.95) 0 4px, rgba(167, 128, 242, 0.9) 5px 8px, transparent 9px),
+    radial-gradient(circle at calc(100% - 22px) calc(100% - 22px), rgba(255, 119, 92, 0.95) 0 4px, rgba(255, 208, 98, 0.9) 5px 8px, transparent 9px);
+}
+
+.camera-frame-peacock-festive {
+  background: linear-gradient(135deg, rgba(13, 118, 142, 0.15), transparent 46%, rgba(28, 83, 143, 0.16));
+}
+
+.camera-frame-peacock-festive::before {
+  border-color: rgba(99, 212, 203, 0.85);
+  box-shadow: inset 0 0 28px rgba(13, 118, 142, 0.2);
+}
+
+.camera-frame-peacock-festive::after {
+  inset: 0;
+  background:
+    radial-gradient(ellipse 10px 24px at 28px 30px, rgba(23, 155, 159, 0.85) 0 48%, transparent 55%),
+    radial-gradient(ellipse 10px 24px at calc(100% - 28px) 30px, rgba(23, 155, 159, 0.85) 0 48%, transparent 55%),
+    radial-gradient(ellipse 10px 24px at 28px calc(100% - 30px), rgba(23, 155, 159, 0.85) 0 48%, transparent 55%),
+    radial-gradient(ellipse 10px 24px at calc(100% - 28px) calc(100% - 30px), rgba(23, 155, 159, 0.85) 0 48%, transparent 55%);
+}
+
+.camera-frame-clear {
+  background: transparent;
+}
+
+.camera-frame-clear::before {
+  inset: 9px;
+  border: 1px dashed rgba(255, 247, 225, 0.45);
+  border-radius: 1.15rem;
+  box-shadow: none;
+}
+
+.camera-frame-festive-toran {
+  background: linear-gradient(180deg, rgba(66, 104, 60, 0.15), transparent 30%);
+}
+
+.camera-frame-festive-toran::after {
+  inset: 0 8px;
+  background:
+    radial-gradient(circle, #f8b13d 0 3px, #d9642d 4px 6px, transparent 7px) 0 0 / 40px 30px repeat-x,
+    radial-gradient(ellipse 6px 12px at 20px 21px, #5f8a51 0 70%, transparent 76%) 0 0 / 40px 30px repeat-x;
+  clip-path: polygon(0 0, 100% 0, 100% 17%, 50% 27%, 0 17%);
+}
+
+.camera-frame-fairy-lights::after,
+.camera-frame-golden-bulbs::after {
+  inset: 7px;
+  background:
+    radial-gradient(circle, #fff4cf 0 3px, rgba(255, 206, 103, 0.75) 4px, transparent 8px) 0 0 / 38px 28px repeat-x,
+    radial-gradient(circle, #ffeab4 0 3px, rgba(255, 194, 75, 0.7) 4px, transparent 8px) 0 100% / 38px 28px repeat-x;
+  filter: drop-shadow(0 0 5px rgba(255, 208, 112, 0.8));
+}
+
+.camera-frame-fairy-lights::after {
+  background:
+    radial-gradient(circle, #fff4cf 0 3px, rgba(255, 206, 103, 0.75) 4px, transparent 8px) 0 0 / 38px 28px repeat-x,
+    radial-gradient(circle, #ffeab4 0 3px, rgba(255, 194, 75, 0.7) 4px, transparent 8px) 0 100% / 38px 28px repeat-x,
+    radial-gradient(circle, #fff0c4 0 2px, rgba(255, 202, 97, 0.45) 3px, transparent 6px) 0 50% / 31px 56px repeat-y,
+    radial-gradient(circle, #fff0c4 0 2px, rgba(255, 202, 97, 0.45) 3px, transparent 6px) 100% 50% / 31px 56px repeat-y;
+}
+
+.camera-frame-bokeh-lights {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255, 220, 137, 0.24) 0 2%, transparent 7%),
+    radial-gradient(circle at 79% 38%, rgba(255, 192, 90, 0.23) 0 3%, transparent 8%),
+    radial-gradient(circle at 65% 78%, rgba(255, 228, 166, 0.2) 0 2%, transparent 7%),
+    radial-gradient(circle at 32% 70%, rgba(255, 190, 96, 0.2) 0 2%, transparent 6%);
+}
+
+.camera-frame-diwali-night {
+  background:
+    radial-gradient(ellipse at 18% 18%, rgba(255, 224, 141, 0.36), transparent 12%),
+    radial-gradient(ellipse at 83% 30%, rgba(255, 195, 91, 0.25), transparent 14%),
+    linear-gradient(145deg, rgba(20, 33, 91, 0.21), transparent 52%, rgba(14, 24, 73, 0.2));
+}
+
+.camera-frame-sparkling-lights::after {
+  inset: 0;
+  background:
+    radial-gradient(circle, rgba(255, 246, 206, 0.9) 0 1px, transparent 3px) 13% 17% / 37px 39px,
+    radial-gradient(circle, rgba(255, 214, 125, 0.86) 0 1px, transparent 3px) 79% 61% / 43px 41px;
+  opacity: 0.8;
+}
+
+.camera-frame-golden-dust::after {
+  inset: 0;
+  background:
+    radial-gradient(circle, rgba(255, 222, 143, 0.76) 0 1px, transparent 2px) 9% 23% / 29px 31px,
+    radial-gradient(circle, rgba(255, 240, 197, 0.62) 0 1px, transparent 2px) 73% 67% / 37px 33px;
+  opacity: 0.7;
+}
+
+.camera-filter-swatch {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.camera-sparkles {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle, rgba(255, 247, 205, 0.95) 0 2px, transparent 3px) 12% 18% / 31px 31px,
+    radial-gradient(circle, rgba(255, 218, 125, 0.9) 0 2px, transparent 3px) 79% 63% / 39px 39px;
+  opacity: 0.85;
+}
+
+.camera-diya-row {
+  position: absolute;
+  inset: auto 8% 7%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.camera-diya-row i {
+  position: relative;
+  width: 29px;
+  height: 13px;
+  border: 1px solid rgba(255, 230, 172, 0.95);
+  border-radius: 0 0 50% 50%;
+  background: linear-gradient(#ffce70, #d86f2d);
+  box-shadow: 0 0 18px rgba(255, 166, 63, 0.8);
+}
+
+.camera-diya-row i::before {
+  position: absolute;
+  content: "";
+  left: 50%;
+  bottom: 10px;
+  width: 8px;
+  height: 15px;
+  transform: translateX(-50%);
+  border-radius: 100% 0 100% 0;
+  background: #fff3bf;
+  box-shadow: 0 0 14px #ffa337;
+}
+
+.camera-royal-corners {
+  position: absolute;
+  inset: 17px;
+  border: 1px solid rgba(245, 214, 141, 0.78);
+  border-radius: 1rem;
+}
+
+.camera-marigold-garland {
+  position: absolute;
+  inset: 0 8px;
+  background:
+    radial-gradient(circle, #f8b334 0 4px, #e47727 5px 8px, transparent 9px) 0 2px / 34px 26px repeat-x,
+    radial-gradient(circle, #f8b334 0 4px, #e47727 5px 8px, transparent 9px) 17px calc(100% - 2px) / 34px 26px repeat-x;
+}
+
+.camera-firework-bursts {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle, #ffe083 0 3px, transparent 4px) 14% 20% / 54px 54px no-repeat,
+    radial-gradient(circle, #e0a0ff 0 3px, transparent 4px) 83% 27% / 48px 48px no-repeat,
+    radial-gradient(circle, #8ee8ff 0 3px, transparent 4px) 69% 78% / 44px 44px no-repeat;
+}
+
+.camera-rangoli-corners {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22px 22px, #ff775c 0 4px, #ffd062 5px 8px, transparent 9px),
+    radial-gradient(circle at calc(100% - 22px) 22px, #43c8b0 0 4px, #a780f2 5px 8px, transparent 9px),
+    radial-gradient(circle at 22px calc(100% - 22px), #43c8b0 0 4px, #a780f2 5px 8px, transparent 9px),
+    radial-gradient(circle at calc(100% - 22px) calc(100% - 22px), #ff775c 0 4px, #ffd062 5px 8px, transparent 9px);
+}
+
+.camera-peacock-corners {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 9px 22px at 28px 30px, #179b9f 0 48%, transparent 55%),
+    radial-gradient(ellipse 9px 22px at calc(100% - 28px) 30px, #179b9f 0 48%, transparent 55%),
+    radial-gradient(ellipse 9px 22px at 28px calc(100% - 30px), #179b9f 0 48%, transparent 55%),
+    radial-gradient(ellipse 9px 22px at calc(100% - 28px) calc(100% - 30px), #179b9f 0 48%, transparent 55%);
+}
+
 .flame {
   transform-origin: 50% 100%;
   animation: flicker 0.18s infinite alternate;

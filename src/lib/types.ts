@@ -26,9 +26,14 @@ export type LetterPayload = {
   message: string;
 };
 
+export type WishLantern =
+  | "/illustrations/wishes-lantern.png"
+  | "/illustrations/wishes-sky-lantern.png";
+
 export type Wish = {
   id: string;
   text: string;
   name: string;
   createdAt: number;
+  lantern?: WishLantern;
 };

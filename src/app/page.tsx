@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AvatarStudio } from "@/components/features/AvatarStudio";
+import { DiwaliCamera } from "@/components/features/DiwaliCamera";
 import { DiwaliGreetingStudio } from "@/components/features/DiwaliGreetingStudio";
 import { DiyaGarden } from "@/components/features/DiyaGarden";
 import { FireworksCelebration } from "@/components/features/FireworksCelebration";
@@ -50,6 +52,8 @@ export default function Home() {
       <FloatingWishes />
 
       <DiwaliGreetingStudio />
+      <AvatarStudio />
+      <DiwaliCamera />
 
       <MysteryGift />
 
