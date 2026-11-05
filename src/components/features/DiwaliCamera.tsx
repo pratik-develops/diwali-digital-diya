@@ -453,6 +453,7 @@ export function DiwaliCamera() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const requestIdRef = useRef(0);
+  const startInProgressRef = useRef(false);
   const filterIdRef = useRef<FilterId>("golden-glow");
   const [facingMode, setFacingMode] = useState<FacingMode>("user");
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -493,7 +494,7 @@ export function DiwaliCamera() {
 
   const startCamera = useCallback(
     async (mode: FacingMode) => {
-      if (isLoading) return;
+      if (startInProgressRef.current) return;
       if (!window.isSecureContext && window.location.hostname !== "localhost") {
         setError("Camera access requires HTTPS. Open this site over a secure connection or localhost.");
         return;
@@ -503,6 +504,7 @@ export function DiwaliCamera() {
         return;
       }
 
+      startInProgressRef.current = true;
       requestIdRef.current += 1;
       const requestId = requestIdRef.current;
       setFacingMode(mode);
@@ -514,11 +516,13 @@ export function DiwaliCamera() {
       setIsVideoReady(false);
 
       try {
+        const mobile = window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: { ideal: mode },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            width: { ideal: mobile ? 640 : 1280 },
+            height: { ideal: mobile ? 480 : 720 },
+            frameRate: { ideal: mobile ? 24 : 30, max: 30 },
           },
           audio: false,
         });
@@ -565,12 +569,11 @@ export function DiwaliCamera() {
           setError(getCameraError(cameraError));
         }
       } finally {
-        if (requestId === requestIdRef.current) {
-          setIsLoading(false);
-        }
+        startInProgressRef.current = false;
+        if (requestId === requestIdRef.current) setIsLoading(false);
       }
     },
-    [isLoading, stopTracks],
+    [stopTracks],
   );
 
   const toggleCamera = useCallback(async () => {
@@ -582,7 +585,7 @@ export function DiwaliCamera() {
   }, [cameraOpen, closeCamera, facingMode, isLoading, startCamera]);
 
   const switchCamera = useCallback(async () => {
-    if (!cameraOpen || isLoading) return;
+    if (!cameraOpen || isLoading || startInProgressRef.current) return;
     const nextMode = facingMode === "user" ? "environment" : "user";
     requestIdRef.current += 1;
     stopTracks();
@@ -661,6 +664,34 @@ export function DiwaliCamera() {
       setNotice("Sharing failed, so the PNG download has started instead.");
     }
   }, [downloadPhoto, photoData]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const video = videoRef.current;
+      const stream = streamRef.current;
+      if (!video || !stream || !isVideoReady) return;
+
+      if (document.hidden) {
+        stream.getVideoTracks().forEach((track) => {
+          track.enabled = false;
+        });
+        video.pause();
+        return;
+      }
+
+      stream.getVideoTracks().forEach((track) => {
+        track.enabled = true;
+      });
+      void video.play().catch((playError: unknown) => {
+        console.error("Unable to resume the Diwali camera preview.", playError);
+        setError("The camera preview could not resume. Close and reopen the camera to try again.");
+      });
+    };
+
+    handleVisibilityChange();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isVideoReady]);
 
   return (
     <section id="camera" className="mx-auto max-w-6xl px-4 py-20">
