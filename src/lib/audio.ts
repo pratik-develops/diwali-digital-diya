@@ -45,36 +45,66 @@ function tone(
   osc.stop(ctx.currentTime + start + duration + 0.05);
 }
 
-function noiseBurst(ctx: AudioContext, duration: number, volume: number) {
-  const length = Math.floor(ctx.sampleRate * duration);
-  const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < length; i += 1) {
-    data[i] = (Math.random() * 2 - 1) * (1 - i / length);
-  }
-  const source = ctx.createBufferSource();
-  const filter = ctx.createBiquadFilter();
-  const gain = ctx.createGain();
-  filter.type = "bandpass";
-  filter.frequency.value = 900 + Math.random() * 1400;
-  gain.gain.setValueAtTime(volume, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-  source.buffer = buffer;
-  source.connect(filter).connect(gain).connect(ctx.destination);
-  source.start();
-}
-
 export type SoundFx = "diya" | "firework" | "open" | "wish" | "gift";
 
+let fireworkVoice: HTMLAudioElement | null = null;
+let fireworkSourceUnavailable = false;
+
+function markFireworkSourceUnavailable() {
+  if (fireworkSourceUnavailable) return;
+  fireworkSourceUnavailable = true;
+  console.error("Unable to load /sounds/firecracker.wav.");
+}
+
+export function preloadFireworkSound() {
+  if (typeof window === "undefined" || fireworkSourceUnavailable) return;
+  if (fireworkVoice) return;
+
+  fireworkVoice = new Audio("/sounds/firecracker.wav");
+  fireworkVoice.preload = "auto";
+  fireworkVoice.volume = 0.5;
+  fireworkVoice.addEventListener("error", markFireworkSourceUnavailable);
+  fireworkVoice.load();
+}
+
+export function playFireworkSound() {
+  if (fireworkSourceUnavailable) return;
+  preloadFireworkSound();
+  if (!fireworkVoice) return;
+
+  fireworkVoice.currentTime = 0;
+  void fireworkVoice.play().catch((error: unknown) => {
+    console.error("Unable to play /sounds/firecracker.wav.", error);
+  });
+}
+
+export function stopFireworkSound() {
+  fireworkVoice?.pause();
+  if (fireworkVoice) fireworkVoice.currentTime = 0;
+}
+
+export function disposeFireworkSound() {
+  if (!fireworkVoice) return;
+
+  fireworkVoice.removeEventListener("error", markFireworkSourceUnavailable);
+  fireworkVoice.pause();
+  fireworkVoice.removeAttribute("src");
+  fireworkVoice.load();
+  fireworkVoice = null;
+  fireworkSourceUnavailable = false;
+}
+
 export async function playFx(kind: SoundFx) {
+  if (kind === "firework") {
+    playFireworkSound();
+    return;
+  }
+
   const ctx = await resume();
   if (!ctx) return;
   if (kind === "diya") {
     tone(ctx, 392, 0.45, "sine", 0.07);
     tone(ctx, 523.25, 0.5, "triangle", 0.04, 0.05);
-  } else if (kind === "firework") {
-    noiseBurst(ctx, 0.35, 0.12);
-    tone(ctx, 220 + Math.random() * 180, 0.25, "sawtooth", 0.03);
   } else if (kind === "open") {
     tone(ctx, 330, 0.3, "sine", 0.05);
     tone(ctx, 495, 0.4, "triangle", 0.04, 0.08);

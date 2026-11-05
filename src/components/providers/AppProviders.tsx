@@ -10,7 +10,14 @@ import {
   type ReactNode,
 } from "react";
 import { MotionConfig } from "framer-motion";
-import { playFx, startAmbient, stopAmbient, type SoundFx } from "@/lib/audio";
+import {
+  playFx,
+  preloadFireworkSound,
+  startAmbient,
+  stopAmbient,
+  stopFireworkSound,
+  type SoundFx,
+} from "@/lib/audio";
 import { copy, type Copy } from "@/lib/i18n";
 import { useStoredJson } from "@/lib/storage";
 import type { Language } from "@/lib/types";
@@ -20,7 +27,7 @@ type SoundSettings = {
   ambientOn: boolean;
 };
 
-const DEFAULT_SOUND: SoundSettings = { fxOn: true, ambientOn: false };
+const DEFAULT_SOUND: SoundSettings = { fxOn: false, ambientOn: false };
 
 type AppContextValue = {
   language: Language;
@@ -53,13 +60,26 @@ export function AppProviders({ children }: { children: ReactNode }) {
     return () => stopAmbient();
   }, []);
 
+  useEffect(() => {
+    if (fxOn) {
+      preloadFireworkSound();
+    } else {
+      stopFireworkSound();
+    }
+  }, [fxOn]);
+
   const setLanguage = useCallback((next: Language) => {
     setLanguageState(next);
   }, [setLanguageState]);
 
   const toggleFx = useCallback(() => {
+    if (fxOn) {
+      stopFireworkSound();
+    } else {
+      preloadFireworkSound();
+    }
     setSound((prev) => ({ ...prev, fxOn: !prev.fxOn, ambientOn: false }));
-  }, [setSound]);
+  }, [fxOn, setSound]);
 
   const toggleAmbient = useCallback(async () => {
     const next = !ambientOn;

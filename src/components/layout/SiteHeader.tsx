@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Volume2, VolumeX, Music, Pause, X } from "lucide-react";
+import { Menu, Music, Pause, X } from "lucide-react";
 import { useState } from "react";
 import { languages } from "@/lib/i18n";
 import { navItems } from "@/lib/nav";
@@ -9,8 +9,7 @@ import { useApp } from "@/components/providers/AppProviders";
 import { Diya } from "@/components/ui/Diya";
 
 export function SiteHeader() {
-  const { t, language, setLanguage, fxOn, ambientOn, toggleFx, toggleAmbient } =
-    useApp();
+  const { t, language, setLanguage, ambientOn, toggleAmbient } = useApp();
   const [open, setOpen] = useState(false);
 
   return (
@@ -60,16 +59,6 @@ export function SiteHeader() {
           >
             {ambientOn ? <Pause size={16} /> : <Music size={16} />}
             <span className="sr-only">{ambientOn ? t.pause : t.play}</span>
-          </button>
-          <button
-            type="button"
-            className="btn-ghost px-3 py-2"
-            onClick={toggleFx}
-            aria-pressed={fxOn}
-            title={fxOn ? t.mute : t.unmute}
-          >
-            {fxOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
-            <span className="sr-only">{fxOn ? t.mute : t.unmute}</span>
           </button>
           <button
             type="button"

@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Volume2, VolumeX } from "lucide-react";
+import { useApp } from "@/components/providers/AppProviders";
+import {
+  disposeFireworkSound,
+  playFireworkSound,
+} from "@/lib/audio";
 
 type Particle = {
   x: number;
@@ -19,12 +25,18 @@ const COLORS = ["#ffd56a", "#ff8a1e", "#ff6b9d", "#c084fc", "#67d5e8", "#50c878"
 const MAX_PARTICLES = 620;
 const COOLDOWN_MS = 140;
 const INTERACTIVE_SELECTOR =
-  "a, button, input, textarea, select, option, label, summary, canvas, video, audio, " +
+  "a, button, input, textarea, select, option, label, summary, form, fieldset, canvas, video, audio, " +
   "[role], [contenteditable='true'], [data-fireworks-ignore], " +
   "[tabindex]:not([tabindex='-1'])";
 
 export function GlobalFireworks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { fxOn, toggleFx, t } = useApp();
+  const soundEnabledRef = useRef(fxOn);
+
+  useEffect(() => {
+    soundEnabledRef.current = fxOn;
+  }, [fxOn]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -134,6 +146,7 @@ export function GlobalFireworks() {
       if (now - lastBurstAt < COOLDOWN_MS) return;
       lastBurstAt = now;
       burst(event.clientX, event.clientY);
+      if (soundEnabledRef.current) playFireworkSound();
     };
 
     resize();
@@ -146,14 +159,28 @@ export function GlobalFireworks() {
       if (frame) window.cancelAnimationFrame(frame);
       particles.length = 0;
       context.clearRect(0, 0, width, height);
+      disposeFireworkSound();
     };
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-50 h-full w-full"
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none fixed inset-0 z-50 h-full w-full"
+        aria-hidden="true"
+      />
+      <button
+        type="button"
+        className="fixed bottom-5 right-5 z-[60] inline-flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-[#16030f]/90 text-gold shadow-lg shadow-black/30 backdrop-blur-md transition hover:scale-105 hover:border-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+        onClick={toggleFx}
+        aria-pressed={fxOn}
+        aria-label={fxOn ? t.mute : t.unmute}
+        title={fxOn ? t.mute : t.unmute}
+        data-fireworks-ignore
+      >
+        {fxOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
+      </button>
+    </>
   );
 }
