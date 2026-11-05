@@ -35,8 +35,11 @@ type AppContextValue = {
   t: Copy;
   fxOn: boolean;
   ambientOn: boolean;
+  touchAnimationsOn: boolean;
   toggleFx: () => void;
   toggleAmbient: () => void;
+  toggleTouchAnimations: () => void;
+  setTouchAnimations: (enabled: boolean) => void;
   play: (kind: SoundFx) => void;
 };
 
@@ -49,6 +52,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   );
   const [sound, setSound] = useStoredJson("diya-sound", DEFAULT_SOUND);
   const [ambientOn, setAmbientOn] = useState(false);
+  const [touchAnimationsOn, setTouchAnimationsOn] = useStoredJson(
+    "diya-touch-animations",
+    true,
+  );
   const fxOn = sound.fxOn;
 
   useEffect(() => {
@@ -91,6 +98,15 @@ export function AppProviders({ children }: { children: ReactNode }) {
     setAmbientOn(next);
   }, [ambientOn]);
 
+  const toggleTouchAnimations = useCallback(() => {
+    setTouchAnimationsOn((current) => !current);
+  }, [setTouchAnimationsOn]);
+
+  const setTouchAnimations = useCallback(
+    (enabled: boolean) => setTouchAnimationsOn(enabled),
+    [setTouchAnimationsOn],
+  );
+
   const play = useCallback(
     (kind: SoundFx) => {
       if (!fxOn) return;
@@ -106,11 +122,25 @@ export function AppProviders({ children }: { children: ReactNode }) {
       t: copy[language],
       fxOn,
       ambientOn,
+      touchAnimationsOn,
       toggleFx,
       toggleAmbient,
+      toggleTouchAnimations,
+      setTouchAnimations,
       play,
     }),
-    [language, setLanguage, fxOn, ambientOn, toggleFx, toggleAmbient, play],
+    [
+      language,
+      setLanguage,
+      fxOn,
+      ambientOn,
+      touchAnimationsOn,
+      toggleFx,
+      toggleAmbient,
+      toggleTouchAnimations,
+      setTouchAnimations,
+      play,
+    ],
   );
 
   return (

@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Settings2, Sparkles, Volume2, VolumeX, X } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useApp } from "@/components/providers/AppProviders";
+import { useStoredJson } from "@/lib/storage";
 import {
   disposeFireworkSound,
   playFireworkSound,
@@ -29,14 +31,48 @@ const INTERACTIVE_SELECTOR =
   "[role], [contenteditable='true'], [data-fireworks-ignore], " +
   "[tabindex]:not([tabindex='-1'])";
 
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
+
 export function GlobalFireworks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { fxOn, toggleFx, t } = useApp();
+  const {
+    fxOn,
+    toggleFx,
+    touchAnimationsOn,
+    toggleTouchAnimations,
+    setTouchAnimations,
+    t,
+  } = useApp();
   const soundEnabledRef = useRef(fxOn);
+  const touchAnimationsEnabledRef = useRef(touchAnimationsOn);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [welcomeDismissed, setWelcomeDismissed] = useStoredJson(
+    "diya-touch-welcome-dismissed",
+    false,
+  );
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerHydrationSnapshot,
+  );
+  const reduceMotion = useReducedMotion();
+  const showWelcome = hydrated && !welcomeDismissed;
+
+  const dismissWelcome = () => setWelcomeDismissed(true);
+  const enableTouchAnimations = () => {
+    setTouchAnimations(true);
+    dismissWelcome();
+  };
 
   useEffect(() => {
     soundEnabledRef.current = fxOn;
   }, [fxOn]);
+
+  useEffect(() => {
+    touchAnimationsEnabledRef.current = touchAnimationsOn;
+  }, [touchAnimationsOn]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -137,6 +173,7 @@ export function GlobalFireworks() {
     };
 
     const onPointerDown = (event: PointerEvent) => {
+      if (!touchAnimationsEnabledRef.current) return;
       if (!event.isPrimary || event.button !== 0) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const target = event.target;
@@ -181,6 +218,97 @@ export function GlobalFireworks() {
       >
         {fxOn ? <Volume2 size={20} /> : <VolumeX size={20} />}
       </button>
+      <div className="fixed bottom-5 right-[4.5rem] z-[60]" data-fireworks-ignore>
+        <div
+          id="touch-animation-settings"
+          hidden={!settingsOpen}
+          className="absolute bottom-14 right-0 w-[min(19rem,calc(100vw-2rem))] rounded-2xl border border-gold/30 bg-[#16030f]/95 p-4 text-amber-50 shadow-xl shadow-black/40 backdrop-blur-xl"
+        >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-gold">Touch Animations</p>
+                <p className="mt-1 text-xs leading-5 text-amber-100/70">
+                  Controls fireworks triggered by touching or clicking the background.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={touchAnimationsOn}
+                aria-label="Touch Animations"
+                onClick={toggleTouchAnimations}
+                className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${
+                  touchAnimationsOn
+                    ? "border-gold/70 bg-gold/35"
+                    : "border-white/20 bg-white/10"
+                }`}
+              >
+                <span
+                  className={`h-4 w-4 rounded-full bg-gold shadow transition-transform ${
+                    touchAnimationsOn ? "translate-x-5" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+        </div>
+        <button
+          type="button"
+          className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-[#16030f]/90 text-gold shadow-lg shadow-black/30 backdrop-blur-md transition hover:scale-105 hover:border-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          onClick={() => setSettingsOpen((open) => !open)}
+          aria-expanded={settingsOpen}
+          aria-controls="touch-animation-settings"
+          aria-label="Open animation settings"
+          title="Animation settings"
+        >
+          <Settings2 size={20} />
+        </button>
+      </div>
+      {showWelcome && (
+        <div className="pointer-events-none fixed inset-x-0 top-[5.25rem] z-[70] flex justify-center px-3 sm:top-20">
+          <motion.aside
+            aria-label="Touch fireworks welcome"
+            className="pointer-events-auto relative w-full max-w-md overflow-hidden rounded-[1.6rem] border border-gold/35 bg-[radial-gradient(ellipse_at_top_right,rgba(255,177,71,.18),transparent_52%),linear-gradient(145deg,rgba(74,13,48,.97),rgba(22,3,15,.97))] p-4 text-amber-50 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-5"
+            initial={reduceMotion ? false : { opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: reduceMotion ? 0 : 0.24, ease: "easeOut" }}
+            data-fireworks-ignore
+          >
+            <div aria-hidden="true" className="pointer-events-none absolute -right-3 -top-4 text-gold/20">
+              <Sparkles size={76} strokeWidth={1} />
+            </div>
+            <button
+              type="button"
+              onClick={dismissWelcome}
+              aria-label="Close welcome popup"
+              className="absolute right-3 top-3 z-10 rounded-full p-1.5 text-amber-100/65 transition hover:bg-white/10 hover:text-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+            >
+              <X size={17} />
+            </button>
+            <p className="relative max-w-[calc(100%-1.5rem)] pr-2 font-display text-base leading-snug text-gold sm:text-lg">
+              Wanna burst some crackers with your touches? 🎆
+            </p>
+            <p className="relative mt-2 max-w-[34rem] pr-1 text-xs leading-5 text-amber-100/80 sm:text-sm">
+              Just tap anywhere on the screen and watch colourful fireworks light up around you. Let&apos;s make this Diwali sparkle!
+            </p>
+            <div className="relative mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={enableTouchAnimations}
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-gold/55 bg-gradient-to-b from-[#ffe08a] to-[#ff9a35] px-4 py-2 text-xs font-extrabold text-[#3a1408] shadow-lg shadow-orange-950/25 transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:text-sm"
+              >
+                Let&apos;s celebrate! 🎇
+              </button>
+              <button
+                type="button"
+                onClick={dismissWelcome}
+                className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-amber-100/80 transition hover:border-gold/35 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:text-sm"
+              >
+                Not now
+              </button>
+            </div>
+          </motion.aside>
+        </div>
+      )}
     </>
   );
 }
