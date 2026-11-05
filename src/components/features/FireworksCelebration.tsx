@@ -12,7 +12,11 @@ export function FireworksCelebration() {
 
   return (
     <section id="fireworks" className="mx-auto max-w-6xl px-4 py-20">
-      <SectionHeading kicker="Night sky" title={t.fireworksTitle} lead={t.fireworksLead} />
+      <SectionHeading
+        kicker="Night sky"
+        title="Paint the Night with Light"
+        lead="Celebrate Diwali by filling the night sky with spectacular fireworks."
+      />
       <div className="festive-card overflow-hidden rounded-[2rem] p-3">
         <FireworksCanvas burstKey={burst} />
       </div>

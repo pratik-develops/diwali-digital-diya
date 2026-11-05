@@ -53,7 +53,11 @@ export function CardStudio() {
 
   return (
     <section id="studio" className="mx-auto max-w-6xl px-4 py-20">
-      <SectionHeading kicker="Design desk" title={t.studioTitle} lead={t.studioLead} />
+      <SectionHeading
+        kicker="Design desk"
+        title="Design Your Diwali Card"
+        lead="Choose a template, customise your message and create a beautiful festive card."
+      />
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="festive-card space-y-4 rounded-[2rem] p-6">
           <div>

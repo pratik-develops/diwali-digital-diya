@@ -25,7 +25,11 @@ export function RangoliCreator() {
 
   return (
     <section id="rangoli" className="mx-auto max-w-6xl px-4 py-20">
-      <SectionHeading kicker="Floor of colour" title={t.rangoliTitle} lead={t.rangoliLead} />
+      <SectionHeading
+        kicker="Floor of colour"
+        title="Colours of Celebration"
+        lead="Choose a pattern and a palette, then watch colour bloom across the floor."
+      />
       <div className="mb-6 flex flex-wrap justify-center gap-2">
         {patterns.map((item) => (
           <button

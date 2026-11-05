@@ -46,7 +46,11 @@ export function GreetingGenerator() {
 
   return (
     <section id="greet" className="mx-auto max-w-6xl px-4 py-20">
-      <SectionHeading kicker="Share the light" title={t.greetTitle} lead={t.greetLead} />
+      <SectionHeading
+        kicker="Share the light"
+        title="A Greeting from the Heart"
+        lead="Write a glowing Diwali card, personalise it and share happiness with someone special."
+      />
       <div className="grid gap-8 lg:grid-cols-2">
         <form
           className="festive-card space-y-4 rounded-[2rem] p-6"

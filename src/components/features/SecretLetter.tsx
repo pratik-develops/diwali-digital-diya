@@ -18,7 +18,11 @@ export function SecretLetter() {
 
   return (
     <section id="letter" className="mx-auto max-w-3xl px-4 py-20">
-      <SectionHeading kicker="Private light" title={t.letterTitle} lead={t.letterLead} />
+      <SectionHeading
+        kicker="Private light"
+        title="A Letter from the Heart"
+        lead="Seal a private greeting in a digital envelope. Anyone with the link can open it."
+      />
       <form
         className="festive-card space-y-4 rounded-[2rem] p-6"
         onSubmit={(event) => {

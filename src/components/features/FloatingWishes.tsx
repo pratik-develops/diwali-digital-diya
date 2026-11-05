@@ -39,7 +39,11 @@ export function FloatingWishes() {
 
   return (
     <section id="wishes" className="mx-auto max-w-6xl px-4 py-20">
-      <SectionHeading kicker="Night lanterns" title={t.wishesTitle} lead={t.wishesLead} />
+      <SectionHeading
+        kicker="Night lanterns"
+        title="Wishes That Take Flight"
+        lead="Write a Diwali wish and release it as a glowing lantern into the night."
+      />
       <p className="mx-auto mb-8 max-w-3xl text-center text-sm text-amber-100/70">
         {t.wishesNote}
       </p>

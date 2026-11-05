@@ -21,7 +21,11 @@ export function MysteryGift() {
 
   return (
     <section id="gift" className="mx-auto max-w-3xl px-4 py-20 text-center">
-      <SectionHeading kicker="Surprise" title={t.giftTitle} lead={t.giftLead} />
+      <SectionHeading
+        kicker="Surprise"
+        title="The Gift of Surprise"
+        lead="Every celebration deserves a little mystery."
+      />
       <div className="relative mx-auto flex h-64 items-center justify-center">
         <AnimatePresence mode="wait">
           {!open ? (

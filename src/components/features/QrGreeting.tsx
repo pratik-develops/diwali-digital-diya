@@ -44,7 +44,11 @@ export function QrGreeting() {
 
   return (
     <section id="qr" className="mx-auto max-w-6xl px-4 py-20">
-      <SectionHeading kicker="Carry the greeting" title={t.qrTitle} lead={t.qrLead} />
+      <SectionHeading
+        kicker="Carry the greeting"
+        title="A Greeting Worth Sharing"
+        lead="Create a QR code that opens a personalised greeting page on another device."
+      />
       <div className="grid gap-8 lg:grid-cols-2">
         <form
           className="festive-card space-y-4 rounded-[2rem] p-6"

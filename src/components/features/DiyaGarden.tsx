@@ -33,7 +33,11 @@ export function DiyaGarden() {
         aria-hidden
       />
       <div className="relative mx-auto max-w-6xl">
-        <SectionHeading kicker="Courtyard" title={t.gardenTitle} lead={t.gardenLead} />
+        <SectionHeading
+          kicker="Courtyard"
+          title="Light Up the Courtyard"
+          lead="Click each diya to light it. Watch the courtyard glow as more flames rise."
+        />
         <p className="mb-6 text-center text-gold">
           {glowing} {t.litCount}
         </p>
