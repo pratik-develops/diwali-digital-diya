@@ -49,7 +49,7 @@ export function GlobalFireworks() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [welcomeDismissed, setWelcomeDismissed] = useStoredJson(
-    "diya-touch-welcome-dismissed-v2",
+    "diya-touch-welcome-dismissed-v3",
     false,
   );
   const hydrated = useSyncExternalStore(
@@ -58,7 +58,7 @@ export function GlobalFireworks() {
     getServerHydrationSnapshot,
   );
   const reduceMotion = useReducedMotion();
-  const showWelcome = hydrated && !welcomeDismissed;
+  const showWelcome = hydrated && !welcomeDismissed && !touchAnimationsOn;
 
   const dismissWelcome = () => setWelcomeDismissed(true);
   const showTouchToast = (nextEnabled: boolean) => {
