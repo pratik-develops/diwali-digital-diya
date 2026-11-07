@@ -4,7 +4,7 @@
 
 **Diwali Digital Diya** is an interactive, immersive digital celebration of the Festival of Lights. It brings together traditional Diwali stories, festive games, creative tools, personalised greetings, glowing diyas, fireworks and beautiful animations — all in one website.
 
-🌐 **Live Website:** https://diwali-digital-diya-734o62cu0-lapiz4.vercel.app/
+🌐 **Live Website:** diwali-digital-diya.vercel.app
 
 ---
 
