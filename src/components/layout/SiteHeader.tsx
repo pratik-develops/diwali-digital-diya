@@ -9,7 +9,14 @@ import { useApp } from "@/components/providers/AppProviders";
 import { Diya } from "@/components/ui/Diya";
 
 export function SiteHeader() {
-  const { t, language, setLanguage, ambientOn, toggleAmbient } = useApp();
+  const {
+    t,
+    language,
+    setLanguage,
+    ambientOn,
+    ambientPlayback,
+    toggleAmbient,
+  } = useApp();
   const [open, setOpen] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
 
@@ -102,10 +109,41 @@ export function SiteHeader() {
             className="btn-ghost px-3 py-2"
             onClick={toggleAmbient}
             aria-pressed={ambientOn}
-            title={t.ambient}
+            aria-label={
+              !ambientOn
+                ? "Turn background music on"
+                : ambientPlayback === "playing"
+                  ? "Turn background music off"
+                  : ambientPlayback === "error"
+                    ? "Background music failed to load; turn it off and on to retry"
+                    : "Background music is on and ready to start"
+            }
+            title={
+              !ambientOn
+                ? "Background music is off"
+                : ambientPlayback === "playing"
+                  ? "Background music is playing"
+                  : ambientPlayback === "error"
+                    ? "Background music failed to load"
+                    : "Background music is ready to start"
+            }
           >
-            {ambientOn ? <Pause size={16} /> : <Music size={16} />}
-            <span className="sr-only">{ambientOn ? t.pause : t.play}</span>
+            {ambientOn && ambientPlayback === "playing" ? (
+              <Pause size={16} />
+            ) : (
+              <Music size={16} />
+            )}
+            <span className="sr-only">
+              {!ambientOn
+                ? "Background music off"
+                : ambientPlayback === "playing"
+                  ? "Background music playing"
+                  : ambientPlayback === "error"
+                    ? "Background music failed to load"
+                    : "Background music ready, waiting for interaction"}
+              {" "}
+              {ambientOn ? t.pause : t.play}
+            </span>
           </button>
           <button
             type="button"
@@ -148,6 +186,19 @@ export function SiteHeader() {
             ))}
           </div>
         </nav>
+      ) : null}
+      {ambientOn && ambientPlayback !== "playing" ? (
+        <div className="pointer-events-none fixed inset-x-0 top-[4.25rem] z-50 flex justify-center px-3">
+          <p
+            role="status"
+            aria-live="polite"
+            className="max-w-[min(92vw,30rem)] rounded-full border border-gold/35 bg-[#220a18]/95 px-4 py-2 text-center text-xs text-amber-50 shadow-lg shadow-black/30 backdrop-blur-xl"
+          >
+            {ambientPlayback === "error"
+              ? "Background music couldn’t load. Check your connection, then turn music off and on to retry."
+              : "Background music is ready — interact anywhere to start."}
+          </p>
+        </div>
       ) : null}
     </header>
   );

@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -16,6 +17,7 @@ import {
   startAmbient,
   stopAmbient,
   stopFireworkSound,
+  type AmbientPlaybackResult,
   type SoundFx,
 } from "@/lib/audio";
 import { copy, type Copy } from "@/lib/i18n";
@@ -27,7 +29,7 @@ type SoundSettings = {
   ambientOn: boolean;
 };
 
-const DEFAULT_SOUND: SoundSettings = { fxOn: false, ambientOn: false };
+const DEFAULT_SOUND: SoundSettings = { fxOn: false, ambientOn: true };
 
 type AppContextValue = {
   language: Language;
@@ -35,6 +37,7 @@ type AppContextValue = {
   t: Copy;
   fxOn: boolean;
   ambientOn: boolean;
+  ambientPlayback: AmbientPlaybackResult;
   touchAnimationsOn: boolean;
   toggleFx: () => void;
   toggleAmbient: () => void;
@@ -51,10 +54,14 @@ export function AppProviders({ children }: { children: ReactNode }) {
     "en",
   );
   const [sound, setSound] = useStoredJson("diya-sound", DEFAULT_SOUND);
-  const [ambientOn, setAmbientOn] = useState(false);
+  const ambientOn =
+    typeof sound.ambientOn === "boolean" ? sound.ambientOn : true;
+  const [ambientPlayback, setAmbientPlayback] =
+    useState<AmbientPlaybackResult>("ready");
+  const ambientRequestRef = useRef(0);
   const [touchAnimationsOn, setTouchAnimationsOn] = useStoredJson(
     "diya-touch-animations",
-    true,
+    false,
   );
   const fxOn = sound.fxOn;
 
@@ -64,8 +71,36 @@ export function AppProviders({ children }: { children: ReactNode }) {
   }, [language]);
 
   useEffect(() => {
-    return () => stopAmbient();
-  }, []);
+    if (!ambientOn) {
+      ambientRequestRef.current += 1;
+      stopAmbient();
+      return;
+    }
+
+    let active = true;
+    const startAfterInteraction = () => {
+      const request = ++ambientRequestRef.current;
+      void startAmbient().then((result) => {
+        if (!active || request !== ambientRequestRef.current) return;
+        setAmbientPlayback(result);
+        if (result === "playing") {
+          window.removeEventListener("pointerdown", startAfterInteraction);
+          window.removeEventListener("keydown", startAfterInteraction);
+        }
+      });
+    };
+
+    window.addEventListener("pointerdown", startAfterInteraction);
+    window.addEventListener("keydown", startAfterInteraction);
+    startAfterInteraction();
+
+    return () => {
+      active = false;
+      ambientRequestRef.current += 1;
+      window.removeEventListener("pointerdown", startAfterInteraction);
+      window.removeEventListener("keydown", startAfterInteraction);
+    };
+  }, [ambientOn]);
 
   useEffect(() => {
     if (fxOn) {
@@ -85,18 +120,26 @@ export function AppProviders({ children }: { children: ReactNode }) {
     } else {
       preloadFireworkSound();
     }
-    setSound((prev) => ({ ...prev, fxOn: !prev.fxOn, ambientOn: false }));
+    setSound((prev) => ({ ...prev, fxOn: !prev.fxOn }));
   }, [fxOn, setSound]);
 
-  const toggleAmbient = useCallback(async () => {
+  const toggleAmbient = useCallback(() => {
     const next = !ambientOn;
     if (next) {
-      await startAmbient();
+      const request = ++ambientRequestRef.current;
+      setAmbientPlayback("ready");
+      void startAmbient().then((result) => {
+        if (request === ambientRequestRef.current) {
+          setAmbientPlayback(result);
+        }
+      });
     } else {
+      ambientRequestRef.current += 1;
       stopAmbient();
+      setAmbientPlayback("off");
     }
-    setAmbientOn(next);
-  }, [ambientOn]);
+    setSound((prev) => ({ ...prev, ambientOn: next }));
+  }, [ambientOn, setSound]);
 
   const toggleTouchAnimations = useCallback(() => {
     setTouchAnimationsOn((current) => !current);
@@ -122,6 +165,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
       t: copy[language],
       fxOn,
       ambientOn,
+      ambientPlayback,
       touchAnimationsOn,
       toggleFx,
       toggleAmbient,
@@ -134,6 +178,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
       setLanguage,
       fxOn,
       ambientOn,
+      ambientPlayback,
       touchAnimationsOn,
       toggleFx,
       toggleAmbient,

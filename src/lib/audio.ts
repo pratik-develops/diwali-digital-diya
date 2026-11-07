@@ -1,5 +1,11 @@
 let context: AudioContext | null = null;
-let ambientNodes: { stop: () => void } | null = null;
+let ambientTrack: HTMLAudioElement | null = null;
+let ambientPlayPromise: Promise<AmbientPlaybackResult> | null = null;
+let ambientAttempt = 0;
+let ambientEnabled = false;
+let ambientHasPlayed = false;
+
+export type AmbientPlaybackResult = "playing" | "ready" | "error" | "off";
 
 function getContext() {
   if (typeof window === "undefined") return null;
@@ -20,6 +26,33 @@ async function resume() {
     await ctx.resume();
   }
   return ctx;
+}
+
+function getAmbientTrack() {
+  if (typeof window === "undefined") return null;
+  if (!ambientTrack) {
+    ambientTrack = new Audio("/sounds/diwali-background.mp3");
+    ambientTrack.preload = "auto";
+    ambientTrack.loop = true;
+    ambientTrack.volume = 0.45;
+    ambientTrack.addEventListener("playing", () => {
+      ambientHasPlayed = true;
+    });
+    ambientTrack.addEventListener("pause", () => {
+      if (ambientEnabled && ambientHasPlayed && !ambientPlayPromise) {
+        void startAmbient();
+      }
+    });
+    ambientTrack.addEventListener("ended", () => {
+      if (ambientEnabled && ambientHasPlayed && !ambientPlayPromise) {
+        void startAmbient();
+      }
+    });
+    ambientTrack.addEventListener("error", () => {
+      console.error("Unable to load /sounds/diwali-background.mp3.");
+    });
+  }
+  return ambientTrack;
 }
 
 function tone(
@@ -120,48 +153,51 @@ export async function playFx(kind: SoundFx) {
 }
 
 export async function startAmbient() {
-  const ctx = await resume();
-  if (!ctx || ambientNodes) return;
+  const track = getAmbientTrack();
+  if (!track) return "error";
+  ambientEnabled = true;
+  if (ambientPlayPromise) return ambientPlayPromise;
+  if (!track.paused && !track.ended) return "playing";
+  if (track.error) {
+    console.error("Unable to load /sounds/diwali-background.mp3.", track.error);
+    return "error";
+  }
+  const attempt = ++ambientAttempt;
+  ambientPlayPromise = (async () => {
+    try {
+      if (track.ended) track.currentTime = 0;
+      await track.play();
+      return attempt === ambientAttempt && !track.paused ? "playing" : "off";
+    } catch (error) {
+      if (
+        error instanceof DOMException &&
+        error.name === "AbortError" &&
+        attempt !== ambientAttempt
+      ) {
+        return "off";
+      }
+      if (error instanceof DOMException && error.name === "NotAllowedError") {
+        return "ready";
+      }
+      console.error("Unable to play /sounds/diwali-background.mp3.", error);
+      return "error";
+    } finally {
+      if (attempt === ambientAttempt) ambientPlayPromise = null;
+    }
+  })();
 
-  const master = ctx.createGain();
-  master.gain.value = 0.03;
-  master.connect(ctx.destination);
-
-  const notes = [261.63, 329.63, 392.0, 523.25, 587.33];
-  const oscillators: OscillatorNode[] = [];
-
-  notes.forEach((frequency, index) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = index % 2 === 0 ? "sine" : "triangle";
-    osc.frequency.value = frequency / 2;
-    gain.gain.value = 0.15;
-    const lfo = ctx.createOscillator();
-    const lfoGain = ctx.createGain();
-    lfo.frequency.value = 0.08 + index * 0.03;
-    lfoGain.gain.value = 0.08;
-    lfo.connect(lfoGain).connect(gain.gain);
-    osc.connect(gain).connect(master);
-    osc.start();
-    lfo.start();
-    oscillators.push(osc, lfo);
-  });
-
-  ambientNodes = {
-    stop: () => {
-      oscillators.forEach((node) => {
-        try {
-          node.stop();
-        } catch {
-          /* already stopped */
-        }
-      });
-      master.disconnect();
-    },
-  };
+  return ambientPlayPromise;
 }
 
 export function stopAmbient() {
-  ambientNodes?.stop();
-  ambientNodes = null;
+  ambientEnabled = false;
+  const pendingPlay = ambientPlayPromise !== null;
+  ambientAttempt += 1;
+  ambientPlayPromise = null;
+  if (!ambientTrack) return;
+  if (!pendingPlay && ambientTrack.paused && ambientTrack.currentTime === 0) {
+    return;
+  }
+  ambientTrack.pause();
+  ambientTrack.currentTime = 0;
 }

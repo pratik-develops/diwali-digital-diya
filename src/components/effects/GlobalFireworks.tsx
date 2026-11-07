@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Settings2, Sparkles, Volume2, VolumeX, X } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useApp } from "@/components/providers/AppProviders";
 import { useStoredJson } from "@/lib/storage";
 import {
@@ -41,15 +41,15 @@ export function GlobalFireworks() {
     fxOn,
     toggleFx,
     touchAnimationsOn,
-    toggleTouchAnimations,
     setTouchAnimations,
     t,
   } = useApp();
   const soundEnabledRef = useRef(fxOn);
   const touchAnimationsEnabledRef = useRef(touchAnimationsOn);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [welcomeDismissed, setWelcomeDismissed] = useStoredJson(
-    "diya-touch-welcome-dismissed",
+    "diya-touch-welcome-dismissed-v2",
     false,
   );
   const hydrated = useSyncExternalStore(
@@ -61,10 +61,28 @@ export function GlobalFireworks() {
   const showWelcome = hydrated && !welcomeDismissed;
 
   const dismissWelcome = () => setWelcomeDismissed(true);
+  const showTouchToast = (nextEnabled: boolean) => {
+    setToastMessage(
+      nextEnabled
+        ? "🎆 Touch Animations are ON! Tap anywhere to enjoy the magic of Diwali."
+        : "✨ Touch Animations are OFF. Enjoy a smoother browsing experience! Turn them ON anytime to experience the festive magic.",
+    );
+  };
   const enableTouchAnimations = () => {
     setTouchAnimations(true);
-    dismissWelcome();
+    showTouchToast(true);
+    setWelcomeDismissed(true);
   };
+
+  useEffect(() => {
+    if (!toastMessage) return;
+
+    const timer = window.setTimeout(() => {
+      setToastMessage(null);
+    }, 3600);
+
+    return () => window.clearTimeout(timer);
+  }, [toastMessage]);
 
   useEffect(() => {
     soundEnabledRef.current = fxOn;
@@ -235,8 +253,12 @@ export function GlobalFireworks() {
                 type="button"
                 role="switch"
                 aria-checked={touchAnimationsOn}
-                aria-label="Touch Animations"
-                onClick={toggleTouchAnimations}
+                aria-label={`Touch Animations ${touchAnimationsOn ? "ON" : "OFF"}`}
+                onClick={() => {
+                  const nextEnabled = !touchAnimationsOn;
+                  setTouchAnimations(nextEnabled);
+                  showTouchToast(nextEnabled);
+                }}
                 className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold ${
                   touchAnimationsOn
                     ? "border-gold/70 bg-gold/35"
@@ -249,6 +271,21 @@ export function GlobalFireworks() {
                   }`}
                 />
               </button>
+            </div>
+            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-gold/20 bg-white/5 px-3 py-2">
+              <div className="flex items-center gap-2 text-[0.64rem] uppercase tracking-[0.18em] text-amber-100/70">
+                <Sparkles size={12} className={touchAnimationsOn ? "text-gold" : "text-amber-100/60"} />
+                <span>Status</span>
+              </div>
+              <span
+                className={`rounded-full border px-2 py-1 text-[0.68rem] font-bold uppercase tracking-[0.14em] ${
+                  touchAnimationsOn
+                    ? "border-gold/50 bg-gold/15 text-gold"
+                    : "border-white/15 bg-white/5 text-amber-100/75"
+                }`}
+              >
+                {touchAnimationsOn ? "ON" : "OFF"}
+              </span>
             </div>
         </div>
         <button
@@ -263,6 +300,25 @@ export function GlobalFireworks() {
           <Settings2 size={20} />
         </button>
       </div>
+      <AnimatePresence>
+        {toastMessage ? (
+          <motion.div
+            key={toastMessage}
+            role="status"
+            aria-live="polite"
+            initial={reduceMotion ? false : { opacity: 0, y: -14, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12, scale: 0.98 }}
+            transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
+            className="pointer-events-none fixed left-1/2 top-[5.25rem] z-[70] w-[min(92vw,32rem)] -translate-x-1/2 rounded-[1.3rem] border border-gold/40 bg-[radial-gradient(circle_at_top,rgba(255,190,95,0.18),transparent_55%),linear-gradient(135deg,rgba(72,10,35,0.98),rgba(24,6,17,0.94))] px-4 py-3 text-center text-sm font-medium text-amber-50 shadow-2xl shadow-black/40 backdrop-blur-xl sm:top-20"
+            data-fireworks-ignore
+          >
+            <span className="inline-block max-w-full text-[0.76rem] leading-relaxed text-amber-50/90 sm:text-sm">
+              {toastMessage}
+            </span>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
       {showWelcome && (
         <div className="pointer-events-none fixed inset-x-0 top-[5.25rem] z-[70] flex justify-center px-3 sm:top-20">
           <motion.aside
@@ -285,25 +341,18 @@ export function GlobalFireworks() {
               <X size={17} />
             </button>
             <p className="relative max-w-[calc(100%-1.5rem)] pr-2 font-display text-base leading-snug text-gold sm:text-lg">
-              Wanna burst some crackers with your touches? 🎆
+              ✨ Bring Diwali to Life!
             </p>
             <p className="relative mt-2 max-w-[34rem] pr-1 text-xs leading-5 text-amber-100/80 sm:text-sm">
-              Just tap anywhere on the screen and watch colourful fireworks light up around you. Let&apos;s make this Diwali sparkle!
+              Want to experience a little more Diwali magic? Turn ON Touch Animations and tap anywhere to light up the night with festive fireworks!
             </p>
-            <div className="relative mt-4 flex flex-wrap gap-2">
+            <div className="relative mt-4">
               <button
                 type="button"
                 onClick={enableTouchAnimations}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-gold/55 bg-gradient-to-b from-[#ffe08a] to-[#ff9a35] px-4 py-2 text-xs font-extrabold text-[#3a1408] shadow-lg shadow-orange-950/25 transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:text-sm"
+                className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-gold/55 bg-gradient-to-b from-[#ffe08a] to-[#ff9a35] px-4 py-2 text-xs font-extrabold text-[#3a1408] shadow-lg shadow-orange-950/25 transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:w-auto sm:text-sm"
               >
-                Let&apos;s celebrate! 🎇
-              </button>
-              <button
-                type="button"
-                onClick={dismissWelcome}
-                className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-amber-100/80 transition hover:border-gold/35 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:text-sm"
-              >
-                Not now
+                Enable Touch Animations
               </button>
             </div>
           </motion.aside>
